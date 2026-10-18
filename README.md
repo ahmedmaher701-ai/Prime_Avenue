@@ -2,7 +2,7 @@
 
 Egyptian Arabic / English community application for Prime Avenue Compound, Hadayek October, Giza.
 
-**Development branch — not approved for production launch.** The existing GitHub Pages site is unchanged until the development branch is reviewed and merged. Read [LAUNCH.md](LAUNCH.md) for the actual setup state and remaining gates.
+**Publication authorized; production verification incomplete.** Firebase backend, administrator account and service listings are deployed. Protected writes still need successful live App Check verification. Read [LAUNCH.md](LAUNCH.md) for actual setup state and remaining checks.
 
 ## Architecture
 

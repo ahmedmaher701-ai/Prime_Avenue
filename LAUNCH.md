@@ -2,24 +2,18 @@
 
 ## Actual cloud state (2026-10-19)
 
-- Firebase project `prime-avenue-16524`, display name **Prime-Avenue**, created.
-- Web app **Prime Avenue Community** registered.
-- Google Sign-In enabled; `ahmedmaher701-ai.github.io` authorized.
-- Blaze billing activated with the owner's explicit approval, linked to the existing billing account.
-- USD 10 alert budget submitted as part of the successful upgrade. Custom USD 1/3/5/10 thresholds have NOT been verified.
-- Firestore `(default)`, Standard edition, `us-central1`, created in production mode with default deny-all access.
-- Default Storage bucket `prime-avenue-16524.firebasestorage.app` now exists, confirmed in the Firebase Files console after owner setup. Region confirmation via CLI remains pending.
-- All eight Node.js 22 second-generation Cloud Functions were created successfully in the owner's Cloud Shell session; application Firestore/Storage rules and Firestore indexes were released successfully.
-- Owner completed the one-day deployment image retention prompt.
-- Owner created a website score key with domain verification enabled for `ahmedmaher701-ai.github.io`, and reports registering it with Firebase App Check. The public key is configured in `firebase-config.js`. Actual attestation and Firestore enforcement remain unverified. Callable functions enforce App Check in deployed code.
-- No administrator document or service seeds have been deployed.
-- Firebase staging frontend is reachable at `https://prime-avenue-16524.web.app`. Browser logs show `appCheck/recaptcha-error` during an attempted Google sign-in; the registered key matches the public client configuration. The cause is not yet isolated.
-- Owner changed the membership policy: completed Google registration now activates membership immediately; no administrator approval is needed. Existing pending profiles can complete registration to activate. Rejected/suspended accounts cannot bypass moderation by registering again. This policy change is prepared on the development branch and awaits backend/staging redeployment.
-- No production frontend changes have been merged or published.
+- Firebase project `prime-avenue-16524`, web app, Google Sign-In, Firestore and private default Storage bucket are configured.
+- All eight Node.js 22 second-generation functions, application Firestore/Storage rules, indexes and the Firebase test frontend were deployed successfully from the owner's Cloud Shell.
+- Blaze is authorized. A USD 10 alert budget was submitted; USD 1/3/5/10 thresholds still need verification. One-day Artifact Registry image cleanup is configured.
+- Public score key is registered with Firebase App Check. The owner successfully updated its allowed domains to the GitHub Pages host and `prime-avenue-16524.web.app` using the Cloud CLI.
+- Initial administrator bootstrap and public service seeding completed successfully. Browser inspection confirms the authenticated administrator navigation and all six directory listings.
+- Completed Google registrations now activate immediately, per the owner's revised policy. Pending profiles can complete registration to activate. Suspended/rejected accounts cannot reactivate themselves. Service recommendations still require moderation.
+- Owner authorized GitHub Pages publication. This release is NOT certified production-ready: a protected test issue submission still returned `functions/unauthenticated` in the agent browser, with App Check/reCAPTCHA errors in logs. The test issue was not created. No attestation bypass was introduced.
+- Actual multi-account, photo upload, mobile/PWA and live Pages checks remain necessary. Firestore App Check enforcement and bucket region also need verification.
 
 ## Current access blockers
 
-Google Cloud billing console and embedded Cloud Shell show **Site Unavailable** in the agent cloud browser. The owner has successfully opened an independent Cloud Shell session and cloned the development branch; all 23 tests also passed there. No authenticated CLI deployment session is available in the agent development container. No workaround using copied cookies, access tokens or service-account keys is permitted or required.
+Google Cloud billing console and embedded Cloud Shell show **Site Unavailable** in the agent cloud browser. The owner has successfully opened an independent Cloud Shell session and cloned the development branch; the original 23 tests also passed there. No authenticated CLI deployment session is available in the agent development container. No workaround using copied cookies, access tokens or service-account keys is permitted or required.
 
 ## Complete backend setup in an accessible trusted environment
 
@@ -37,9 +31,9 @@ npm run test:rules
 npx firebase deploy --only firestore,storage,functions --project prime-avenue-16524
 ```
 
-Deploying application backend infrastructure is within the requested setup scope. Publishing the frontend to GitHub Pages still requires the owner's final approval. Configure Artifact Registry cleanup using the official Firebase CLI to avoid accumulating deployment image storage. Functions have zero minimum instances and a maximum of two instances each; this is not an overall spending limit.
+Deploying application backend infrastructure is within the requested setup scope. The owner has explicitly authorized publishing the frontend to GitHub Pages. Configure Artifact Registry cleanup using the official Firebase CLI to avoid accumulating deployment image storage. Functions have zero minimum instances and a maximum of two instances each; this is not an overall spending limit.
 
-5. Staging is configured for `https://prime-avenue-16524.web.app`, with an explicit frontend-only build allowlist, no-index headers, and an exact callable CORS entry. The owner reports adding this domain to the score key. This is a public sign-in page with private community data protected by membership rules, not an access-restricted hosting environment. From the development branch, run `npx firebase deploy --only functions,hosting --project prime-avenue-16524`. This deploys the test frontend and updated CORS; GitHub Pages is unchanged. Actual staging deployment and valid App Check transport remain pending. The confirmed initial administrator must sign in with Google there. With application-default credentials in a trusted owner environment, run:
+5. Staging is configured for `https://prime-avenue-16524.web.app`, with an explicit frontend-only build allowlist, no-index headers, and an exact callable CORS entry. The owner reports adding this domain to the score key. This is a public sign-in page with private community data protected by membership rules, not an access-restricted hosting environment. From the development branch, run `npx firebase deploy --only functions,hosting --project prime-avenue-16524`. This deploys the test frontend and updated CORS; GitHub Pages is unchanged. The staging deployment succeeded; valid App Check transport remains unresolved. The confirmed initial administrator must sign in with Google there. With application-default credentials in a trusted owner environment, run:
 
 ```sh
 node scripts/bootstrap-admin.mjs CONFIRMED_ADMIN_GOOGLE_EMAIL
@@ -65,7 +59,7 @@ The email argument is entered privately at runtime, not stored in the repository
 
 ## Verification already completed locally
 
-Syntax/configuration/CSP/prototype-removal checks and six validation tests pass. Seventeen emulator rule/integration tests pass, including shared data, admin authorization, suspension, photo re-encoding and access denial. Browser checks confirm the Arabic guest gate and English/LTR switch with no horizontal overflow at the available desktop viewport. Authenticated browser journeys, actual mobile-device checks and production App Check transport remain untested.
+Syntax/configuration/CSP/prototype-removal checks and six validation tests pass. Nineteen emulator rule/integration tests pass, including shared data, admin authorization, suspension, photo re-encoding and access denial. Browser checks confirm the Arabic guest gate and English/LTR switch with no horizontal overflow at the available desktop viewport. Actual Google sign-in and authenticated administrator reads were verified on the test site. Protected writes currently fail App Check in the agent browser. Actual multi-account journeys, mobile-device checks and working production App Check transport remain unverified.
 
 ## Cost and maintenance notes
 
