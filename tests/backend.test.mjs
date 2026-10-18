@@ -1,0 +1,9 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {registration,postInput,id} from '../functions/validation.js';
+test('registration accepts Egyptian and international phone numbers',()=>{for(const phone of ['01012345678','+201012345678'])assert.equal(registration({name:'أحمد',phone,building:'B1',unit:'12',type:'owner'}).phone,phone);});
+test('registration rejects invalid profiles',()=>{for(const p of [{name:'',phone:'01012345678',building:'1',unit:'2',type:'owner'},{name:'Ahmed',phone:'javascript:1',building:'1',unit:'2',type:'owner'},{name:'Ahmed',phone:'01012345678',building:'1',unit:'2',type:'admin'}])assert.throws(()=>registration(p));});
+test('resident cannot publish announcements, events or polls',()=>{for(const kind of ['events','announcements','polls'])assert.throws(()=>postInput({kind,title:'Test',body:'Test'}));});
+test('poll requires unique bounded options',()=>{assert.throws(()=>postInput({kind:'polls',title:'Poll',body:'Question',options:['yes','yes']},true));assert.equal(postInput({kind:'polls',title:'Poll',body:'Question',options:['yes','no']},true).options.length,2);});
+test('business recommendations need address and reject unsafe phone',()=>{assert.throws(()=>postInput({kind:'services',title:'Shop',body:'Description'}));assert.throws(()=>postInput({kind:'services',title:'Shop',body:'Description',address:'October',businessPhone:'<script>'}));});
+test('path traversal and oversized content rejected',()=>{for(const value of ['../admins','a/b','a.b',''])assert.throws(()=>id(value));assert.throws(()=>postInput({kind:'forum',title:'x'.repeat(121),body:'Hello'}));});

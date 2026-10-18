@@ -1,0 +1,8 @@
+rules_version = '2';
+service firebase.storage {
+ match /b/{bucket}/o {
+  // No direct client access. The trusted backend checks current membership,
+  // post visibility and ownership before accepting or returning image bytes.
+  match /{path=**} { allow read, write: if false; }
+ }
+}
