@@ -8,14 +8,14 @@
 - Blaze billing activated with the owner's explicit approval, linked to the existing billing account.
 - USD 10 alert budget submitted as part of the successful upgrade. Custom USD 1/3/5/10 thresholds have NOT been verified.
 - Firestore `(default)`, Standard edition, `us-central1`, created in production mode with default deny-all access.
-- Storage provisioning was attempted in `us-central1`, but the console returned to its setup screen. Bucket creation is NOT confirmed.
+- Default Storage bucket `prime-avenue-16524.firebasestorage.app` now exists, confirmed in the Firebase Files console after owner setup. Region confirmation via CLI remains pending.
 - App Check product initialized; attestation registration and enforcement are NOT complete.
 - No Cloud Functions, application rules, indexes, administrator document or service seeds have been deployed.
 - No production frontend changes have been merged or published.
 
 ## Current access blockers
 
-Google Cloud billing console and embedded Cloud Shell both show **Site Unavailable** in the connected cloud browser. No authenticated CLI deployment session is available in the development container. No workaround using copied cookies, access tokens or service-account keys is permitted or required.
+Google Cloud billing console and embedded Cloud Shell show **Site Unavailable** in the agent cloud browser. The owner has successfully opened an independent Cloud Shell session and cloned the development branch; all 23 tests also passed there. No authenticated CLI deployment session is available in the agent development container. No workaround using copied cookies, access tokens or service-account keys is permitted or required.
 
 ## Complete backend setup in an accessible trusted environment
 
@@ -68,3 +68,9 @@ Syntax/configuration/CSP/prototype-removal checks and six validation tests pass.
 The app can incur charges for database reads/writes/storage, photo storage/operations/egress, function invocations/compute, build artifacts/logging and reCAPTCHA/Fraud Defense above applicable no-cost quotas. Repeated photo reads invoke a backend function by design to preserve authorization; the app keeps only a session-memory photo cache. Budget alerts do not stop usage. Never promise a zero bill or a USD 10 maximum.
 
 Notifications are in-app only; push/email notifications are not configured. Content pagination is 30 records per page; comment panels show the latest 50 comments. Daily request limits are enforced per authenticated account. Their small `limits` documents accumulate; include periodic owner cleanup in maintenance or add a tested retention policy later. Backups and PITR were not enabled; select and authorize a backup policy before wider resident rollout.
+
+## Development dependency audit follow-up
+
+Pinned transitive overrides upgrade `@grpc/grpc-js` to 1.14.6, `@opentelemetry/core` to 2.8.0, and `uuid` to 11.1.1. All 23 tests and Firebase CLI module/deployment-help checks pass after these changes. The backend production dependency tree continues to have no reported vulnerabilities.
+
+The root development audit now reports three high-severity entries for one remaining chain: `firebase-tools` → `chokidar` → `braces` (GHSA-vfj7-8cjw-p6xm). No patched braces version is published. This recursive pattern-parsing denial-of-service issue affects the development CLI watcher, not the deployed backend or browser bundle. Run the CLI only with trusted repository files/configuration and no untrusted glob patterns; track an upstream fix. Do not use `npm audit fix --force` or replace a major CLI dependency solely to suppress the advisory.
