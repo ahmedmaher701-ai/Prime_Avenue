@@ -9,8 +9,10 @@
 - USD 10 alert budget submitted as part of the successful upgrade. Custom USD 1/3/5/10 thresholds have NOT been verified.
 - Firestore `(default)`, Standard edition, `us-central1`, created in production mode with default deny-all access.
 - Default Storage bucket `prime-avenue-16524.firebasestorage.app` now exists, confirmed in the Firebase Files console after owner setup. Region confirmation via CLI remains pending.
-- App Check product initialized; attestation registration and enforcement are NOT complete.
-- No Cloud Functions, application rules, indexes, administrator document or service seeds have been deployed.
+- All eight Node.js 22 second-generation Cloud Functions were created successfully in the owner's Cloud Shell session; application Firestore/Storage rules and Firestore indexes were released successfully.
+- Owner completed the one-day deployment image retention prompt.
+- Owner created a website score key with domain verification enabled for `ahmedmaher701-ai.github.io`, and reports registering it with Firebase App Check. The public key is configured in `firebase-config.js`. Actual attestation and Firestore enforcement remain unverified. Callable functions enforce App Check in deployed code.
+- No administrator document or service seeds have been deployed.
 - No production frontend changes have been merged or published.
 
 ## Current access blockers
