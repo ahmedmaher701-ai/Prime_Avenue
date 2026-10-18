@@ -37,7 +37,7 @@ npx firebase deploy --only firestore,storage,functions --project prime-avenue-16
 
 Deploying application backend infrastructure is within the requested setup scope. Publishing the frontend to GitHub Pages still requires the owner's final approval. Configure Artifact Registry cleanup using the official Firebase CLI to avoid accumulating deployment image storage. Functions have zero minimum instances and a maximum of two instances each; this is not an overall spending limit.
 
-5. Prepare a restricted staging frontend on an authorized domain, with valid App Check configured. The confirmed initial administrator must sign in with Google there. With application-default credentials in a trusted owner environment, run:
+5. Staging is configured for `https://prime-avenue-16524.web.app`, with an explicit frontend-only build allowlist, no-index headers, and an exact callable CORS entry. The owner reports adding this domain to the score key. This is a public sign-in page with private community data protected by membership rules, not an access-restricted hosting environment. From the development branch, run `npx firebase deploy --only functions,hosting --project prime-avenue-16524`. This deploys the test frontend and updated CORS; GitHub Pages is unchanged. Actual staging deployment and valid App Check transport remain pending. The confirmed initial administrator must sign in with Google there. With application-default credentials in a trusted owner environment, run:
 
 ```sh
 node scripts/bootstrap-admin.mjs CONFIRMED_ADMIN_GOOGLE_EMAIL

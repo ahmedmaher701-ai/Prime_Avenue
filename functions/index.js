@@ -8,7 +8,7 @@ import {id,text,registration,postInput} from './validation.js';
 initializeApp();
 setGlobalOptions({region:'us-central1',maxInstances:2,minInstances:0,memory:'256MiB',timeoutSeconds:30});
 const db=getFirestore();
-const options={enforceAppCheck:true,cors:['https://ahmedmaher701-ai.github.io'],maxInstances:2};
+const options={enforceAppCheck:true,cors:['https://ahmedmaher701-ai.github.io','https://prime-avenue-16524.web.app'],maxInstances:2};
 const stamp=()=>FieldValue.serverTimestamp();
 function fail(message='Permission denied'){throw new HttpsError('permission-denied',message);}
 async function actor(r,approved=true) {

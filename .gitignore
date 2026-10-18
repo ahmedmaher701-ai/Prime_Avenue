@@ -6,3 +6,4 @@ node_modules/
 *service-account*.json
 *credentials*.json
 .openai/
+dist-staging/
