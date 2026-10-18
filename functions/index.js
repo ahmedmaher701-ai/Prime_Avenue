@@ -28,8 +28,8 @@ function notify(tx,uid,message,postId='') { tx.set(db.collection(`notifications/
 export const registerResident=callable(async r=>{
  const a=await actor(r,false);const p=registration(r.data);await rate(a.uid,'registration',5);
  const ref=db.doc(`residents/${a.uid}`);
- await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists && !['rejected'].includes(old.data().status))throw new HttpsError('already-exists','Registration already submitted');tx.set(ref,{...p,status:'pending',createdAt:stamp(),email:r.auth.token.email});});
- return {status:'pending'};
+ await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists && old.data().status!=='pending')throw new HttpsError('already-exists','Registration already submitted');tx.set(ref,{...p,status:'approved',createdAt:old.data()?.createdAt||stamp(),email:r.auth.token.email});});
+ return {status:'approved'};
 });
 export const createPost=callable(async r=>{
  const a=await actor(r);const p=postInput(r.data,a.admin);await rate(a.uid,'post',20);

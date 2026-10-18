@@ -7,7 +7,7 @@ Egyptian Arabic / English community application for Prime Avenue Compound, Haday
 ## Architecture
 
 - Static ES-module frontend at the existing `/Prime_Avenue/` GitHub Pages path; original logo, colors, RTL styling and emoji navigation retained.
-- Firebase Google Authentication. Registration records are private to their owner and administrators. A newly registered resident is pending until approved.
+- Firebase Google Authentication. Registration records are private to their owner and administrators. Completing a valid registration activates membership immediately. Administrators can suspend accounts; service recommendations still require review.
 - Firestore stores shared content. Security Rules deny direct client mutations. Cloud Functions validate current approval or an administrator document for every request.
 - `admins/{uid}` can only be created through trusted owner tooling. A Google email or a client-side role flag never grants administrator permissions. The bootstrap script checks that the confirmed account has signed in with Google and has a verified email.
 - All callable endpoints enforce App Check. No debug tokens are committed. App Check must be registered and its public site key populated before mutations can work.

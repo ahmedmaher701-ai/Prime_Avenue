@@ -13,6 +13,8 @@
 - Owner completed the one-day deployment image retention prompt.
 - Owner created a website score key with domain verification enabled for `ahmedmaher701-ai.github.io`, and reports registering it with Firebase App Check. The public key is configured in `firebase-config.js`. Actual attestation and Firestore enforcement remain unverified. Callable functions enforce App Check in deployed code.
 - No administrator document or service seeds have been deployed.
+- Firebase staging frontend is reachable at `https://prime-avenue-16524.web.app`. Browser logs show `appCheck/recaptcha-error` during an attempted Google sign-in; the registered key matches the public client configuration. The cause is not yet isolated.
+- Owner changed the membership policy: completed Google registration now activates membership immediately; no administrator approval is needed. Existing pending profiles can complete registration to activate. Rejected/suspended accounts cannot bypass moderation by registering again. This policy change is prepared on the development branch and awaits backend/staging redeployment.
 - No production frontend changes have been merged or published.
 
 ## Current access blockers
@@ -46,14 +48,14 @@ node scripts/seed-services.mjs
 
 The email argument is entered privately at runtime, not stored in the repository. The bootstrap script refuses unverified/non-Google accounts. No client-facing administrator promotion endpoint exists.
 
-6. Sign out/in or refresh membership after bootstrap. Confirm the administrator dashboard appears only for this UID. Confirm a second Google account remains pending until approved.
+6. Sign out/in or refresh membership after bootstrap. Confirm the administrator dashboard appears only for this UID. Confirm a second Google account receives community access after completing a valid registration, without gaining administrator privileges.
 
 ## Staging and launch acceptance
 
 - Real Google sign-in, popup behavior on iPhone/Safari and Android, repeat sign-in on a second device.
-- Pending/rejected/suspended visitors cannot read private content, upload photos or submit mutations.
+- Unregistered/rejected/suspended visitors cannot read private content, upload photos or submit mutations.
 - Approved second account sees shared posts/comments; cannot read another registration, self-approve, assign admin, tamper with counters or overwrite another photo.
-- Registration, approvals, issue status, photos/retries, comments, votes/toggles, poll changes, event attendance, recommendations, ratings and moderation work through actual deployed endpoints with valid App Check.
+- Registration, suspension, issue status, photos/retries, comments, votes/toggles, poll changes, event attendance, recommendations, ratings and moderation work through actual deployed endpoints with valid App Check.
 - Missing/invalid App Check tokens are rejected by the deployed callable transport and Firestore enforcement.
 - Photo retrieval is denied after content is hidden or membership is suspended. No bearer URLs or photo responses cached by the service worker.
 - Arabic RTL and English LTR, long text, keyboard focus, mobile widths 320/375/390/430, iPhone safe area, PWA installation and update behavior.
