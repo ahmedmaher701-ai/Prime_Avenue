@@ -1,0 +1,8 @@
+node_modules/
+.firebase/
+*-debug.log*
+.env*
+!.env.example
+*service-account*.json
+*credentials*.json
+.openai/

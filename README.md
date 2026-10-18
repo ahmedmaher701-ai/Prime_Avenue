@@ -1,34 +1,43 @@
 # Prime Avenue | برايم أفينيو
 
-A mobile-first Egyptian Arabic / English community prototype for Prime Avenue Compound, Hadayek October, Giza.
+Egyptian Arabic / English community application for Prime Avenue Compound, Hadayek October, Giza.
 
-## Website
+**Development branch — not approved for production launch.** The existing GitHub Pages site is unchanged until the development branch is reviewed and merged. Read [LAUNCH.md](LAUNCH.md) for the actual setup state and remaining gates.
 
-GitHub Pages: https://ahmedmaher701-ai.github.io/Prime_Avenue/
+## Architecture
 
-To activate Pages: **Repository Settings → Pages → Deploy from a branch → main → /(root)**.
+- Static ES-module frontend at the existing `/Prime_Avenue/` GitHub Pages path; original logo, colors, RTL styling and emoji navigation retained.
+- Firebase Google Authentication. Registration records are private to their owner and administrators. A newly registered resident is pending until approved.
+- Firestore stores shared content. Security Rules deny direct client mutations. Cloud Functions validate current approval or an administrator document for every request.
+- `admins/{uid}` can only be created through trusted owner tooling. A Google email or a client-side role flag never grants administrator permissions. The bootstrap script checks that the confirmed account has signed in with Google and has a verified email.
+- All callable endpoints enforce App Check. No debug tokens are committed. App Check must be registered and its public site key populated before mutations can work.
+- Photos are decoded, resized, stripped of metadata and re-encoded on the backend. All direct Storage access is denied. Authenticated functions return image bytes only to permitted viewers. No public bearer download URLs are stored.
+- Private content is held in memory in the frontend. No localStorage community database or simulated authentication. The service worker caches application assets only.
 
-## Prototype features
+## Implemented workflows
 
-- Responsive Arabic (RTL) and English interfaces; emoji navigation and community features.
-- Clean scalable logo: `prime-avenue-logo.svg`, displayed in the header and welcome section.
-- Resident registration: name, mobile number, building, unit, owner/tenant.
-- Returning-resident sign-in on the **same device** by previously registered phone number.
-- Visitors can browse, but must be signed in as residents to post issues, discussions, ideas, recommendations, votes or comments.
-- Photo attachments on issue reports (browser storage size limited).
-- Forum, ideas, voting, comments, and issue-status tracking.
-- Local business/service directory categories; recommendations require demo approval.
-- Events and residents' discounts (discounts: Coming Soon).
-- Admin demo login: **Admin / Admin**. Admin navigation only appears after demo login, with local dashboard for issues, recommendations and events.
+Registration/approval/suspension; issues and photos; comments; forum; ideas/votes; administrator events and attendance; announcements/polls; lost and found; service recommendations/approval/ratings; marketplace; in-app notifications; discounts marked `قريباً — Coming Soon`. The administrator dashboard is responsive. No resident directory or anonymous posting.
 
-## Critical security limitation — not production-ready
+Verified public listings are prepared in `data/services.seed.json`. They include source URLs and review dates, and are distinct from resident recommendations. No unverified private technician contacts are included. Listings do not promise opening hours, availability, delivery or proximity in minutes.
 
-This is a **browser-only demo**, not a real multi-user web app. Data is kept in browser `localStorage`, so it is visible only on the same device/browser. Registration does **not** verify phone number or residency, and returned-resident sign-in by phone is not secure. The admin password **Admin** is intentionally published in the JavaScript as a temporary *demo credential*; it does **not** provide any real authorization or isolation. Anyone can read the source and bypass browser-only controls. Do **not** collect actual residents' phone numbers, photos, or sensitive issue details for real use until a secure backend is deployed.
+## Development and verification
 
-Before community launch: configure a hosted backend (e.g. Supabase free tier), genuine authentication, verified resident approval, server-side role checks / row-level security, moderated shared database, rate limits, and secure image storage. Change the demo admin credentials to private server-side authentication and remove all client-side mock authorization.
+Use Node 22 and Java 21 or newer for emulator tests:
 
-## Files
+```sh
+npm ci
+npm ci --prefix functions
+npm run check
+npm test
+npm run test:rules
+```
 
-- `index.html`: static website and core features.
-- `upgrade.js`: client-side demo registration, sign-in, write restrictions and admin dashboard.
-- `prime-avenue-logo.svg`: scalable geometric logo adapted from the supplied Prime Avenue branding.
+`npm run dev` serves only frontend assets. The browser SDK uses Firebase 13.0.0 from Google's CDN. Firebase web configuration is public project identification; it does not grant database access.
+
+`tests/integration.test.mjs` exercises deployed handler logic against real Firestore/Storage emulators using synthetic identities. It deliberately invokes handler `.run()` and therefore does **not** test token verification, App Check transport enforcement or real Google sign-in. Those require staging verification before launch.
+
+## Administration
+
+Daily approvals, suspensions, issue status, recommendations and content moderation are performed through the administrator dashboard. Public business source records can be edited or hidden there. Registration corrections/deletion requests currently require project-owner support; there is no resident self-service account deletion yet.
+
+The repository contains no service-account keys, private Firebase credentials, session tokens or administrator password. Use interactive Firebase authentication or short-lived workload identity for deployment. Never commit a downloaded key or a Firebase login token.

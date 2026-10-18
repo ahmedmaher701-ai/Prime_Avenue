@@ -1,0 +1,16 @@
+import {test,before,after} from 'node:test';
+import {readFileSync} from 'node:fs';
+import {initializeTestEnvironment,assertFails,assertSucceeds} from '@firebase/rules-unit-testing';
+import {doc,setDoc,getDoc,getDocs,collection,query,where} from 'firebase/firestore';
+import {ref,uploadBytes,getBytes} from 'firebase/storage';
+let env;
+before(async()=>{env=await initializeTestEnvironment({projectId:'demo-prime-avenue',firestore:{rules:readFileSync('firestore.rules','utf8')},storage:{rules:readFileSync('storage.rules','utf8')}});await env.withSecurityRulesDisabled(async ctx=>{const db=ctx.firestore();for(const [path,data] of Object.entries({'admins/admin':{active:true},'residents/approved':{status:'approved',phone:'private'},'residents/pending':{status:'pending'},'residents/suspended':{status:'suspended'},'posts/shared':{visibility:'published',authorId:'approved'},'posts/private':{visibility:'pending',authorId:'other'},'posts/own':{visibility:'pending',authorId:'approved'}}))await setDoc(doc(db,path),data);});});
+after(async()=>{await env?.cleanup();});
+function user(uid){return env.authenticatedContext(uid,{email_verified:true,firebase:{sign_in_provider:'google.com'}});}
+test('visitors, pending and suspended residents cannot read community posts',async()=>{for(const ctx of [env.unauthenticatedContext(),user('pending'),user('suspended')])await assertFails(getDoc(doc(ctx.firestore(),'posts/shared')));});
+test('approved resident can read published and own pending posts only',async()=>{const db=user('approved').firestore();await assertSucceeds(getDoc(doc(db,'posts/shared')));await assertSucceeds(getDoc(doc(db,'posts/own')));await assertFails(getDoc(doc(db,'posts/private')));});
+test('residents cannot list or read other private registrations',async()=>{const db=user('approved').firestore();await assertSucceeds(getDoc(doc(db,'residents/approved')));await assertFails(getDoc(doc(db,'residents/pending')));await assertFails(getDocs(collection(db,'residents')));});
+test('all direct writes denied including self approval, admin escalation and vote tampering',async()=>{for(const uid of ['approved','pending','admin'])for(const [path,data] of [['residents/'+uid,{status:'approved'}],['admins/'+uid,{active:true}],['posts/fake',{visibility:'published'}],['posts/shared/responses/'+uid,{value:true}]])await assertFails(setDoc(doc(user(uid).firestore(),path),data));});
+test('queries must constrain visibility or ownership',async()=>{const db=user('approved').firestore();await assertFails(getDocs(collection(db,'posts')));await assertSucceeds(getDocs(query(collection(db,'posts'),where('visibility','==','published'))));});
+test('admin can list resident registrations and moderate content reads',async()=>{await assertSucceeds(getDocs(collection(user('admin').firestore(),'residents')));await assertSucceeds(getDoc(doc(user('admin').firestore(),'posts/private')));});
+test('all storage access goes through authorized backend',async()=>{for(const ctx of [env.unauthenticatedContext(),user('pending'),user('approved'),user('admin')]){const photo=ref(ctx.storage(),'photos/approved/shared/image.jpg');await assertFails(uploadBytes(photo,new Uint8Array([1,2,3]),{contentType:'image/jpeg'}));await assertFails(getBytes(photo));}});

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "online-ezaby-beta-greens",
+    "title": "صيدليات العزبي — بيتا جرينز / El Ezaby — Beta Greens",
+    "body": "صيدلية في حدائق أكتوبر. بيانات من الدليل العام؛ اتصل للتأكد من المواعيد والتوصيل. / Pharmacy in Hadayek October. Confirm hours and delivery directly.",
+    "category": "pharmacies",
+    "address": "محل 011، مبنى الخدمات B، بيتا جرينز، حدائق أكتوبر / Shop 011, Services B, Beta Greens, Hadayek October",
+    "businessPhone": "19600",
+    "sourceUrl": "https://19600.tel/w/Branch-210",
+    "verifiedAt": "2026-10-19"
+  },
+  {
+    "id": "online-btech-mall-egypt",
+    "title": "بي تك — مول مصر / B.TECH — Mall of Egypt",
+    "body": "أجهزة منزلية وإلكترونيات. بيانات فرع منشورة على موقع بي تك. / Appliances and electronics; branch listed by B.TECH.",
+    "category": "shops",
+    "address": "مول مصر، طريق الواحات، أمام مدينة الإنتاج الإعلامي / Mall of Egypt, El Wahat Road",
+    "businessPhone": "19966",
+    "sourceUrl": "https://blog.btech.com/ar/عناوين-فروع-بي-تك-مصر/",
+    "verifiedAt": "2026-10-19"
+  },
+  {
+    "id": "online-carrefour-mall-egypt",
+    "title": "كارفور — مول مصر / Carrefour — Mall of Egypt",
+    "body": "هايبر ماركت في مول مصر. الموقع داخل المول بحسب دليل المول: الدور الأول، C1 أو D1. / Hypermarket; mall directory lists level 1, C1 or D1.",
+    "category": "shops",
+    "address": "مول مصر، طريق الواحات / Mall of Egypt, El Wahat Road",
+    "businessPhone": "16061",
+    "sourceUrl": "https://www.mallofegypt.com/en/stores/carrefour",
+    "verifiedAt": "2026-10-19"
+  },
+  {
+    "id": "online-paul-mall-egypt",
+    "title": "بول — مول مصر / PAUL — Mall of Egypt",
+    "body": "مخبوزات وكافيه في مول مصر، الدور الأول، B1 بحسب دليل المول. / Bakery and café on level 1, B1 according to the mall directory.",
+    "category": "cafes",
+    "address": "مول مصر، طريق الواحات / Mall of Egypt, El Wahat Road",
+    "businessPhone": "+201127265898",
+    "sourceUrl": "https://www.mallofegypt.com/en/dine/paul-bakery",
+    "verifiedAt": "2026-10-19"
+  },
+  {
+    "id": "online-tabali-mall-egypt",
+    "title": "طبالي بيسترو — مول مصر / Tabali Bistro — Mall of Egypt",
+    "body": "مطعم أكل مصري، الدور الأول بحسب دليل مطاعم مول مصر. / Egyptian restaurant, level 1, listed by Mall of Egypt.",
+    "category": "restaurants",
+    "address": "مول مصر، طريق الواحات / Mall of Egypt, El Wahat Road",
+    "businessPhone": "",
+    "sourceUrl": "https://www.mallofegypt.com/en/dine",
+    "verifiedAt": "2026-10-19"
+  },
+  {
+    "id": "online-koffee-kulture-mall-egypt",
+    "title": "كوفي كالتشر — مول مصر / Koffee Kulture — Mall of Egypt",
+    "body": "كافيه، الدور الأول بحسب دليل مطاعم مول مصر. / Café on level 1, listed by Mall of Egypt.",
+    "category": "cafes",
+    "address": "مول مصر، طريق الواحات / Mall of Egypt, El Wahat Road",
+    "businessPhone": "",
+    "sourceUrl": "https://www.mallofegypt.com/en/dine",
+    "verifiedAt": "2026-10-19"
+  }
+]
