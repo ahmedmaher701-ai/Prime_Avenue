@@ -76,3 +76,13 @@ The root development audit now reports three high-severity entries for one remai
 ## First-tap Google sign-in follow-up
 
 The public sign-in page now prepares the Firebase redirect resolver and App Check token before enabling Google sign-in. The click path invokes the popup immediately after preparation, ignores duplicate taps during a sign-in attempt, and clears stale errors when starting/signing in. Three focused tests cover cold setup, synchronous first-tap invocation and duplicate-tap/retry handling. These checks do not replace an actual iPhone Safari test. App Check enforcement and resident authorization are unchanged.
+
+## Mobile UI and residency question follow-up
+
+Arabic labels use «اتحاد سكان» and the owner-selected «مشكلات وحلول». Post badges identify their section (issue/discussion/recommendation/etc.); administration controls are collapsed. Service ratings are removed from the interface, and a short Google Maps button opens a search for the public business name/address. Public bilingual directory content follows the selected language. A More menu exposes every section on mobile.
+
+The owner supplied phone screenshots showing an actual submitted post and displayed uploaded photo. This is evidence of those journeys for the owner account, not multi-account testing or proof of every release gate.
+
+The new registration yes/no answer is prepared as private `currentlyLiving` data. It does not affect membership approval or administrative roles. Existing clients remain compatible and existing profiles are not assigned a fabricated answer. Backend unit/integration checks cover yes/no persistence and malformed inputs. The question must stay unpublished until the owner deploys the updated `registerResident` function from the development branch. No backend credentials are available in the agent container.
+
+All 32 current tests pass (13 unit/input/UI helpers and 19 emulator tests). Isolated mobile fixtures rendered from the actual presentation functions were checked at 390px: no horizontal overflow, maps present, ratings absent, administration collapsed, and the future registration question has required yes/no radios.
