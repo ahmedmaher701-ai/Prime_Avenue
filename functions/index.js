@@ -29,7 +29,7 @@ export const registerResident=callable(async r=>{
  const a=await actor(r,false);const p=registration(r.data);await rate(a.uid,'registration',5);
  const ref=db.doc(`residents/${a.uid}`);
  await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists && old.data().status!=='pending')throw new HttpsError('already-exists','Registration already submitted');tx.set(ref,{...p,status:'approved',createdAt:old.data()?.createdAt||stamp(),email:r.auth.token.email});});
- return {status:'approved'};
+ return {status:'approved',currentlyLiving:p.currentlyLiving};
 });
 export const createPost=callable(async r=>{
  const a=await actor(r);const p=postInput(r.data,a.admin);await rate(a.uid,'post',20);
