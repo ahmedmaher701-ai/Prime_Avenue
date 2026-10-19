@@ -72,3 +72,7 @@ Notifications are in-app only; push/email notifications are not configured. Cont
 Pinned transitive overrides upgrade `@grpc/grpc-js` to 1.14.6, `@opentelemetry/core` to 2.8.0, and `uuid` to 11.1.1. All 23 tests and Firebase CLI module/deployment-help checks pass after these changes. The backend production dependency tree continues to have no reported vulnerabilities.
 
 The root development audit now reports three high-severity entries for one remaining chain: `firebase-tools` → `chokidar` → `braces` (GHSA-vfj7-8cjw-p6xm). No patched braces version is published. This recursive pattern-parsing denial-of-service issue affects the development CLI watcher, not the deployed backend or browser bundle. Run the CLI only with trusted repository files/configuration and no untrusted glob patterns; track an upstream fix. Do not use `npm audit fix --force` or replace a major CLI dependency solely to suppress the advisory.
+
+## First-tap Google sign-in follow-up
+
+The public sign-in page now prepares the Firebase redirect resolver and App Check token before enabling Google sign-in. The click path invokes the popup immediately after preparation, ignores duplicate taps during a sign-in attempt, and clears stale errors when starting/signing in. Three focused tests cover cold setup, synchronous first-tap invocation and duplicate-tap/retry handling. These checks do not replace an actual iPhone Safari test. App Check enforcement and resident authorization are unchanged.
