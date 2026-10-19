@@ -11,6 +11,16 @@
 - Owner authorized GitHub Pages publication. This release is NOT certified production-ready: a protected test issue submission still returned `functions/unauthenticated` in the agent browser, with App Check/reCAPTCHA errors in logs. The test issue was not created. No attestation bypass was introduced.
 - Actual multi-account, photo upload, mobile/PWA and live Pages checks remain necessary. Firestore App Check enforcement and bucket region also need verification.
 
+## Admin analytics and comment totals — pending backend release
+
+- Admin-only callable aggregates all registrations by building, owner/tenant, current residence, status and 7/30-day signup cohorts. Unknown historical answers remain unknown; account counts are not unit counts or occupancy rates.
+- Authenticated member visits (including admins) are deduplicated per account per 30-minute bucket, across devices. Daily totals and distinct members use Cairo dates. Anonymous pre-login traffic is excluded. Tracking begins at release; no historic traffic is fabricated. No IP addresses, user-agent strings or device fingerprints are stored. Raw visit identifiers are backend-only.
+- Each counted visit writes a per-member marker and aggregate daily record. Analytics reads all resident profile projections on demand and at most 30 daily records; usage contributes to normal Blaze function/Firestore usage. Refresh is explicit, with no dashboard polling.
+- Post cards show full comment totals; old posts use Firestore count aggregation and the trusted comment function initializes a legacy total transactionally. Hidden comment placeholders remain in the thread and count. The comment modal shows the latest 50 while retaining the full total.
+- Owner reports the residency-question backend deployment succeeded. PR #4 and its matching frontend were published successfully.
+- For this release, deploy `createPost`, `addComment`, `recordVisit` and `getAdminAnalytics` (codebase `community`) from the development branch before publishing its frontend. Existing rules already deny direct metric reads/writes; no rules changes are required.
+- Validation: 39 tests (16 unit/helper + 23 emulator integration/security) pass; syntax/configuration checks pass. Arabic/English component previews fit 375px without page overflow; wide building tables scroll within their section. Live analytics validation awaits the owner deployment.
+
 ## Current access blockers
 
 Google Cloud billing console and embedded Cloud Shell show **Site Unavailable** in the agent cloud browser. The owner has successfully opened an independent Cloud Shell session and cloned the development branch; the original 23 tests also passed there. No authenticated CLI deployment session is available in the agent development container. No workaround using copied cookies, access tokens or service-account keys is permitted or required.

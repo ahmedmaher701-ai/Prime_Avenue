@@ -32,3 +32,30 @@ test('photos are re-encoded in private Storage and access follows current member
  await assert.rejects(backend.getPhoto.run(request('test-other',{postId:id})),e=>e.code==='permission-denied');
  await assert.rejects(backend.getPhoto.run(request('test-suspended',{postId:id})),e=>e.code==='permission-denied');
 });
+
+test('comment totals include legacy comments and concurrent additions without accepting client counts',async()=>{
+ const {id}=await backend.createPost.run(request('test-member',{kind:'forum',title:'Count comments',body:'Historical and new comments'}));
+ const ref=db.doc(`posts/${id}`);await ref.update({commentCount:(await import('../functions/node_modules/firebase-admin/lib/firestore/index.js')).FieldValue.delete()});
+ await ref.collection('comments').doc('legacy').set({body:'Legacy comment',createdAt:new Date()});
+ await Promise.all(['test-member','test-other'].map(uid=>backend.addComment.run(request(uid,{postId:id,body:'New comment',commentCount:9999}))));
+ assert.equal((await ref.get()).data().commentCount,3);
+});
+test('only trusted admins can retrieve private resident aggregates',async()=>{
+ for(const uid of ['test-member','test-suspended'])await assert.rejects(backend.getAdminAnalytics.run(request(uid,{admin:true})),e=>e.code==='permission-denied');
+ await assert.rejects(backend.getAdminAnalytics.run({data:{admin:true}}),e=>e.code==='unauthenticated');
+ const result=await backend.getAdminAnalytics.run(request('test-admin'));
+ assert.ok(result.residents.total>=5);assert.equal(result.timeZone,'Africa/Cairo');
+ assert.ok(!JSON.stringify(result).includes('@example.test'));assert.ok(!JSON.stringify(result).includes('01012345678'));
+});
+test('signed-in visit counts deduplicate concurrent requests and ignore forged metrics',async()=>{
+ const {cairoDay}=await import('../functions/analytics.js');const day=cairoDay();
+ const before=(await db.doc(`visitDays/${day}`).get()).data()||{};
+ await Promise.all([backend.recordVisit.run(request('test-member',{visits:9000,day:'1900-01-01'})),backend.recordVisit.run(request('test-member'))]);
+ await backend.recordVisit.run(request('test-other'));await backend.recordVisit.run(request('test-other'));
+ const after=(await db.doc(`visitDays/${day}`).get()).data();
+ assert.equal(after.visits-(before.visits||0),2);assert.equal(after.members-(before.members||0),2);
+ const summary=await backend.getAdminAnalytics.run(request('test-admin'));assert.equal(summary.visits.today,after.visits);assert.equal(summary.visits.todayMembers,after.members);assert.equal(summary.visits.days.length,30);assert.ok(summary.visits.startedAt);
+ await assert.rejects(backend.recordVisit.run(request('test-suspended')),e=>e.code==='permission-denied');
+ await assert.rejects(backend.recordVisit.run({data:{}}),e=>e.code==='unauthenticated');
+ assert.equal((await db.doc('visitDays/1900-01-01').get()).exists,false);
+});

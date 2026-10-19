@@ -1,10 +1,11 @@
 import sharp from 'sharp';
 import {initializeApp} from 'firebase-admin/app';
-import {getFirestore,FieldValue} from 'firebase-admin/firestore';
+import {getFirestore,FieldValue,Timestamp} from 'firebase-admin/firestore';
 import {getStorage} from 'firebase-admin/storage';
 import {onCall,HttpsError} from 'firebase-functions/v2/https';
 import {setGlobalOptions} from 'firebase-functions/v2';
 import {id,text,registration,postInput} from './validation.js';
+import {cairoDay,summarizeResidents} from './analytics.js';
 initializeApp();
 setGlobalOptions({region:'us-central1',maxInstances:2,minInstances:0,memory:'256MiB',timeoutSeconds:30});
 const db=getFirestore();
@@ -33,11 +34,11 @@ export const registerResident=callable(async r=>{
 });
 export const createPost=callable(async r=>{
  const a=await actor(r);const p=postInput(r.data,a.admin);await rate(a.uid,'post',20);
- const ref=db.collection('posts').doc();await ref.set({...p,authorId:a.uid,authorName:a.name,visibility:p.kind==='services'&&!a.admin?'pending':'published',source:'resident',sourceUrl:'',verifiedAt:'',issueStatus:'open',photoPath:'',voteCount:0,attendanceCount:0,ratingCount:0,ratingTotal:0,pollCounts:p.options.map(()=>0),createdAt:stamp(),updatedAt:stamp()});return {id:ref.id};
+ const ref=db.collection('posts').doc();await ref.set({...p,authorId:a.uid,authorName:a.name,visibility:p.kind==='services'&&!a.admin?'pending':'published',source:'resident',sourceUrl:'',verifiedAt:'',issueStatus:'open',photoPath:'',commentCount:0,voteCount:0,attendanceCount:0,ratingCount:0,ratingTotal:0,pollCounts:p.options.map(()=>0),createdAt:stamp(),updatedAt:stamp()});return {id:ref.id};
 });
 export const addComment=callable(async r=>{
  const a=await actor(r);const postId=id(r.data.postId),body=text(r.data.body,1000);await rate(a.uid,'comment',60);
- await db.runTransaction(async tx=>{const ref=db.doc(`posts/${postId}`);const s=await tx.get(ref);if(!s.exists || s.data().visibility!=='published')fail();tx.set(ref.collection('comments').doc(),{authorId:a.uid,authorName:a.name,body,createdAt:stamp()});if(s.data().authorId!==a.uid)notify(tx,s.data().authorId,'في تعليق جديد على مشاركتك / New comment',postId);});return {ok:true};
+ await db.runTransaction(async tx=>{const ref=db.doc(`posts/${postId}`);const s=await tx.get(ref);if(!s.exists || s.data().visibility!=='published')fail();const existing=Number.isSafeInteger(s.data().commentCount)?s.data().commentCount:(await tx.get(ref.collection('comments').select())).size;tx.update(ref,{commentCount:existing+1});tx.set(ref.collection('comments').doc(),{authorId:a.uid,authorName:a.name,body,createdAt:stamp()});if(s.data().authorId!==a.uid)notify(tx,s.data().authorId,'في تعليق جديد على مشاركتك / New comment',postId);});return {ok:true};
 });
 export const respond=callable(async r=>{
  const a=await actor(r);const postId=id(r.data.postId);await rate(a.uid,'response',100);
@@ -86,4 +87,31 @@ export const adminManage=callable(async r=>{
   await db.doc(`posts/${id(d.postId)}/comments/${id(d.commentId)}`).update({body:'تم إخفاء التعليق بواسطة الإدارة / Removed by admin',authorName:'الإدارة / Admin'});
  }else throw new Error('invalid-action');
  return {ok:true};
+});
+
+// Counts authenticated activity, not public anonymous traffic. Client-supplied counters/dates are ignored.
+export const recordVisit=callable(async r=>{
+ const a=await actor(r),now=new Date(),day=cairoDay(now),bucket=Math.floor(now.getTime()/1800000);
+ const visitor=db.doc(`visitMembers/${a.uid}`),daily=db.doc(`visitDays/${day}`),meta=db.doc('analytics/tracking');
+ return db.runTransaction(async tx=>{
+  const [old,settings]=await Promise.all([tx.get(visitor),tx.get(meta)]);
+  if(old.data()?.bucket===bucket)return {counted:false};
+  tx.set(visitor,{bucket,day});
+  tx.set(daily,{visits:FieldValue.increment(1),members:FieldValue.increment(old.data()?.day===day?0:1)},{merge:true});
+  if(!settings.exists)tx.set(meta,{startedAt:Timestamp.fromDate(now)});
+  return {counted:true};
+ });
+});
+export const getAdminAnalytics=callable(async r=>{
+ const a=await actor(r);if(!a.admin)fail('Administrator required');await rate(a.uid,'analytics',200);
+ const now=new Date(),day=cairoDay(now),start=new Date(`${day}T12:00:00Z`);start.setUTCDate(start.getUTCDate()-29);const firstDay=start.toISOString().slice(0,10);
+ const [residents,visits,meta]=await Promise.all([
+  db.collection('residents').select('building','type','currentlyLiving','status','createdAt').get(),
+  db.collection('visitDays').where('__name__','>=',firstDay).where('__name__','<=',day).orderBy('__name__').limit(30).get(),
+  db.doc('analytics/tracking').get()
+ ]);
+ const daily=visits.docs.map(d=>({day:d.id,visits:d.data().visits||0,members:d.data().members||0}));
+ const dates=Array.from({length:30},(_,i)=>{const d=new Date(`${day}T12:00:00Z`);d.setUTCDate(d.getUTCDate()-i);return d.toISOString().slice(0,10);});
+ const days=dates.map(day=>daily.find(d=>d.day===day)||{day,visits:0,members:0});
+ return {residents:summarizeResidents(residents.docs.map(d=>d.data()),now),visits:{today:days[0].visits,todayMembers:days[0].members,last7:days.slice(0,7).reduce((n,d)=>n+d.visits,0),last30:days.reduce((n,d)=>n+d.visits,0),days:days.slice().reverse(),startedAt:meta.data()?.startedAt?.toDate().toISOString()||null},asOf:now.toISOString(),timeZone:'Africa/Cairo'};
 });

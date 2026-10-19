@@ -14,3 +14,9 @@ test('all direct writes denied including self approval, admin escalation and vot
 test('queries must constrain visibility or ownership',async()=>{const db=user('approved').firestore();await assertFails(getDocs(collection(db,'posts')));await assertSucceeds(getDocs(query(collection(db,'posts'),where('visibility','==','published'))));});
 test('admin can list resident registrations and moderate content reads',async()=>{await assertSucceeds(getDocs(collection(user('admin').firestore(),'residents')));await assertSucceeds(getDoc(doc(user('admin').firestore(),'posts/private')));});
 test('all storage access goes through authorized backend',async()=>{for(const ctx of [env.unauthenticatedContext(),user('pending'),user('approved'),user('admin')]){const photo=ref(ctx.storage(),'photos/approved/shared/image.jpg');await assertFails(uploadBytes(photo,new Uint8Array([1,2,3]),{contentType:'image/jpeg'}));await assertFails(getBytes(photo));}});
+test('raw analytics and visitor identifiers stay backend-only and cannot be forged',async()=>{
+ for(const ctx of [env.unauthenticatedContext(),user('approved'),user('admin')])for(const path of ['analytics/tracking','visitDays/2026-10-19','visitMembers/approved']){
+  await assertFails(getDoc(doc(ctx.firestore(),path)));
+  await assertFails(setDoc(doc(ctx.firestore(),path),{visits:999}));
+ }
+});
