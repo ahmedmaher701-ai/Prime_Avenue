@@ -5,8 +5,9 @@ export function text(value, max, min=1) {
 }
 export function id(value) { const s=text(value,128); if(!/^[A-Za-z0-9_-]+$/.test(s)) throw new Error('invalid-id'); return s; }
 export function registration(d) {
- const p={name:text(d.name,80,2),phone:text(d.phone,20),building:text(d.building,20),unit:text(d.unit,20),type:d.type};
+ const p={name:text(d.name,80,2),phone:text(d.phone,20),building:text(d.building,20),unit:text(d.unit,20),type:d.type,currentlyLiving:d.currentlyLiving===undefined?null:d.currentlyLiving};
  if(!/^\+?[0-9 ()-]{9,20}$/.test(p.phone) || !['owner','tenant'].includes(p.type)) throw new Error('invalid-registration');
+ if(p.currentlyLiving!==null && typeof p.currentlyLiving!=='boolean') throw new Error('invalid-residency-answer');
  return p;
 }
 export function postInput(d,admin=false) {
