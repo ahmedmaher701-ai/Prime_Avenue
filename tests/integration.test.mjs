@@ -59,3 +59,15 @@ test('signed-in visit counts deduplicate concurrent requests and ignore forged m
  await assert.rejects(backend.recordVisit.run({data:{}}),e=>e.code==='unauthenticated');
  assert.equal((await db.doc('visitDays/1900-01-01').get()).exists,false);
 });
+test('service Maps links persist through submission and moderation; old admin clients preserve them',async()=>{
+ const link='https://maps.app.goo.gl/rHACEFWvdLCd58Az8?g_st=iw';
+ const {id}=await backend.createPost.run(request('test-member',{kind:'services',title:'Shared map',body:'Local recommendation',mapUrl:link}));
+ const ref=db.doc(`posts/${id}`);assert.equal((await ref.get()).data().mapUrl,link);assert.equal((await ref.get()).data().visibility,'pending');
+ await backend.adminManage.run(request('test-admin',{action:'moderate',postId:id,visibility:'published'}));
+ await backend.adminManage.run(request('test-admin',{action:'edit',postId:id,post:{title:'Edited shop',body:'Updated details',address:'October'}}));
+ assert.equal((await ref.get()).data().mapUrl,link);
+ const replacement='https://www.google.com/maps?cid=123';
+ await backend.adminManage.run(request('test-admin',{action:'edit',postId:id,post:{title:'Edited shop',body:'Updated details',mapUrl:replacement}}));
+ assert.equal((await ref.get()).data().mapUrl,replacement);
+ await assert.rejects(backend.createPost.run(request('test-member',{kind:'services',title:'Unsafe map',body:'Details',address:'October',mapUrl:'https://evil.test/maps'})),e=>e.code==='invalid-argument');
+});
