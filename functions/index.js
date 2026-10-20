@@ -82,7 +82,7 @@ export const adminManage=callable(async r=>{
  }else if(d.action==='issue'){
   if(!['open','progress','resolved'].includes(d.status))throw new Error('invalid-status');await db.doc(`posts/${id(d.postId)}`).update({issueStatus:d.status,updatedAt:stamp()});
  }else if(d.action==='edit'){
-  const postId=id(d.postId),ref=db.doc(`posts/${postId}`),s=await ref.get();if(!s.exists)throw new Error('missing-post');const p=postInput({...d.post,kind:s.data().kind},true);if(p.kind==='polls'&&JSON.stringify(p.options)!==JSON.stringify(s.data().options))throw new Error('poll-options-immutable');await ref.update({...p,updatedAt:stamp()});
+  const postId=id(d.postId),ref=db.doc(`posts/${postId}`),s=await ref.get();if(!s.exists)throw new Error('missing-post');const p=postInput({...d.post,mapUrl:d.post.mapUrl===undefined?s.data().mapUrl||'':d.post.mapUrl,kind:s.data().kind},true);if(p.kind==='polls'&&JSON.stringify(p.options)!==JSON.stringify(s.data().options))throw new Error('poll-options-immutable');await ref.update({...p,updatedAt:stamp()});
  }else if(d.action==='removeComment'){
   await db.doc(`posts/${id(d.postId)}/comments/${id(d.commentId)}`).update({body:'تم إخفاء التعليق بواسطة الإدارة / Removed by admin',authorName:'الإدارة / Admin'});
  }else throw new Error('invalid-action');

@@ -1,4 +1,4 @@
-const CACHE='prime-avenue-shell-v4';
+const CACHE='prime-avenue-shell-v5';
 const SHELL=['./','./styles.css','./app.js','./auth-flow.js','./post-ui.js','./admin-analytics-ui.js','./firebase-config.js','./prime-avenue-logo.svg','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));

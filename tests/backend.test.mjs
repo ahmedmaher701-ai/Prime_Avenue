@@ -8,3 +8,11 @@ test('resident cannot publish announcements, events or polls',()=>{for(const kin
 test('poll requires unique bounded options',()=>{assert.throws(()=>postInput({kind:'polls',title:'Poll',body:'Question',options:['yes','yes']},true));assert.equal(postInput({kind:'polls',title:'Poll',body:'Question',options:['yes','no']},true).options.length,2);});
 test('business recommendations need address and reject unsafe phone',()=>{assert.throws(()=>postInput({kind:'services',title:'Shop',body:'Description'}));assert.throws(()=>postInput({kind:'services',title:'Shop',body:'Description',address:'October',businessPhone:'<script>'}));});
 test('path traversal and oversized content rejected',()=>{for(const value of ['../admins','a/b','a.b',''])assert.throws(()=>id(value));assert.throws(()=>postInput({kind:'forum',title:'x'.repeat(121),body:'Hello'}));});
+test('services accept location details or a verified-form Google Maps URL and canonicalize old map addresses',()=>{
+ const base={kind:'services',title:'Local shop',body:'Recommended shop'};
+ const link='https://maps.app.goo.gl/rHACEFWvdLCd58Az8?g_st=iw';
+ assert.equal(postInput({...base,mapUrl:link}).mapUrl,link);
+ assert.equal(postInput({...base,address:'October'}).mapUrl,'');
+ const legacy=postInput({...base,address:link});assert.equal(legacy.address,'');assert.equal(legacy.mapUrl,link);
+ for(const mapUrl of ['javascript:alert(1)','https://example.com','https://maps.app.goo.gl.evil.test/x','https://google.com/url?q=https://evil.test',false,{},'https://google.com/maps/'+'x'.repeat(2048)])assert.throws(()=>postInput({...base,address:'October',mapUrl}));
+});

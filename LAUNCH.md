@@ -21,6 +21,16 @@
 - For this release, deploy `createPost`, `addComment`, `recordVisit` and `getAdminAnalytics` (codebase `community`) from the development branch before publishing its frontend. Existing rules already deny direct metric reads/writes; no rules changes are required.
 - Validation: 39 tests (16 unit/helper + 23 emulator integration/security) pass; syntax/configuration checks pass. Arabic/English component previews fit 375px without page overflow; wide building tables scroll within their section. Live analytics validation awaits the owner deployment.
 
+## Place forms and Google Maps links — pending backend release (2026-10-20)
+
+- Post title inputs now read “موضوع المشاركة / Post subject”, service titles “اسم المكان أو الخدمة / Place or service name”, and marketplace titles “اسم المعروض / Item name”. Location/directions has its own field.
+- Services accept a separate `mapUrl` field (HTTPS Google Maps full/share links, maximum 2,048 characters). Either location text or a valid Maps link is required. The Maps button prefers the submitted link and otherwise searches by name/location.
+- Backend and display validation reject deceptive hosts, unsafe schemes, credentials and nonstandard ports. No server-side URL fetch or short-link expansion occurs. Admin moderation remains required for resident recommendations.
+- Legacy Maps links in the address field are recognized and separated when editing/submitting. Older admin clients preserve an existing Maps link when they omit the new field.
+- Owner confirmed the analytics backend deployment succeeded; PR #5 and its frontend have been published successfully. Unauthenticated probes to both new analytics endpoints returned UNAUTHENTICATED.
+- This release requires the owner to deploy `community:createPost` and `community:adminManage` from the development branch before its frontend is published. No credentials, dependency changes or rules changes are needed.
+- Validation: all 43 tests pass (19 unit/helper + 24 emulator security/integration), plus syntax/configuration checks. Mobile component previews show the separate link/location fields, legacy link prefilling and clarified subject labels at 390px without page overflow. Actual authenticated live submission remains to be checked after deployment.
+
 ## Current access blockers
 
 Google Cloud billing console and embedded Cloud Shell show **Site Unavailable** in the agent cloud browser. The owner has successfully opened an independent Cloud Shell session and cloned the development branch; the original 23 tests also passed there. No authenticated CLI deployment session is available in the agent development container. No workaround using copied cookies, access tokens or service-account keys is permitted or required.
